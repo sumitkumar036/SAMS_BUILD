@@ -1,1 +1,0 @@
-window.RUNTIME_CONFIG = { GEMINI_API_KEY: '' };
