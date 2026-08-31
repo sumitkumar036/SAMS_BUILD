@@ -1,27 +1,24 @@
-name: Build and Deploy
+name: Deploy Static Build
 
 on:
   push:
     branches: [ Master ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
+      - name: Checkout repository files
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Inject GitHub Secret into Runtime Config
+      - name: Inject Secret into config.js
         run: |
-          echo "window.RUNTIME_CONFIG = { GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}' };" > public/config.js
+          echo "window.RUNTIME_CONFIG = { GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}' };" > config.js
 
-      - name: Build project
-        run: npm run build
+      - name: Commit and push generated config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add config.js
+          git commit -m "chore: dynamically inject runtime config secret" || echo "No changes to commit"
+          git push
